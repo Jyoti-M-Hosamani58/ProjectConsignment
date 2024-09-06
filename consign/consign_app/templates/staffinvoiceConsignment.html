@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Consignment</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+        @media print {
+            @page {
+                size: 8.5in 11.69in; /* Letter size */
+                margin: 0;
+            }
+            body {
+                font-family: Courier, monospace; /* Monospace font for print */
+                font-size: 10px; /* Reduce font size for print */
+                margin: 0;
+                padding: 0;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: fixed; /* Ensure columns fit within the page width */
+            }
+            td, th {
+                border: 1px solid black;
+                padding: 2px;
+                word-wrap: break-word; /* Ensure text wraps inside cells */
+                overflow: hidden; /* Prevent content from overflowing */
+            }
+        }
+
+        /* Responsive design adjustments */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+            .btn-print {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            table {
+                font-size: 12px; /* Adjust font size for smaller screens */
+            }
+            img {
+                width: 80px; /* Adjust image size for smaller screens */
+                height: auto;
+                margin: 0 auto; /* Center the image */
+                display: block;
+            }
+        }
+
+        /* Ensure table fits the width of the screen */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto; /* Allow columns to adjust based on content */
+        }
+        th, td {
+            padding: 1px; /* Reduce padding to save space */
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between; /* Adjust as needed */
+        }
+        .flex-container img {
+            max-width: 100px;
+            height: auto;
+        }
+        .flex-container div {
+            flex: 1;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:window.print()" class="btn btn-danger btn-print">Print</a>
+    {% if 'Consignee Copy' in copy_types %}
+    <div class="container">
+        <p class="text-center"><strong>CONSIGNEE COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{branchdetails.image}}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{branchdetails.gst}}<br>
+                                {{branchdetails.companyname}}<br>
+                                {{branchdetails.address}}<br>
+                                {{branchdetails.phonenumber}}<br>
+                                Email: <a href="mailto:{{branchdetails.email}}">{{branchdetails.email}}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>LR No.: {{ consignment.track_id }}</strong></td>
+                    <td><strong>{{ consignment.time }}</strong></td>
+                    <td><strong>{{ consignment.date }}</strong></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><strong>{{consignment.route_from}}</strong></td>
+                    <td colspan="3"><strong>{{consignment.route_to}}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ consignment.sender_name }}<br>
+                        Address: {{ consignment.sender_address }}<br>
+                        Mobile No: {{ consignment.sender_mobile }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ consignment.receiver_name }}<br>
+                        Address: {{ consignment.receiver_address }}<br>
+                        Mobile: {{ consignment.receiver_mobile }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+
+                <!-- Start of items loop -->
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.pieces }}</td>
+                    <td>{{ item.desc_product }}</td>
+                    {% if forloop.first %}
+                    <td rowspan="5">{{ item.weight }}</td>
+                    <td rowspan="{{ items|length }}">Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                        Balance:</td>
+                    <td rowspan="{{ items|length }}">{{ consignment.freight }}<br>
+                        {{ consignment.door_charge }}<br>
+                        {{ consignment.st_charge }}<br>
+                        {{ consignment.hamali }}<br>
+                        {{ consignment.balance }}<br>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                <!-- End of items loop -->
+
+                <tr>
+                    <td colspan="2">E-way Bill:</td>
+                    <td>{{consignment.pay_status}}</td>
+                    <td>Total</td>
+                    <td>{{consignment.total_cost}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+<hr>
+{% endif %}
+
+    {% if 'Lorry Copy' in copy_types %}
+<div class="container">
+        <p class="text-center"><strong>Lorry COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{branchdetails.image}}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{branchdetails.gst}}<br>
+                                {{branchdetails.companyname}}<br>
+                                {{branchdetails.address}}<br>
+                                {{branchdetails.phonenumber}}<br>
+                                Email: <a href="mailto:{{branchdetails.email}}">{{branchdetails.email}}</a>
+                            </div>
+                        </div>
+                    </td>
+                     </td>
+                    <td><strong>LR No.: {{ consignment.track_id }}</strong></td>
+                    <td><strong>{{ consignment.time }}</strong></td>
+                    <td><strong>{{ consignment.date }}</strong></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><strong>{{consignment.route_from}}</strong></td>
+                    <td colspan="3"><strong>{{consignment.route_to}}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ consignment.sender_name }}<br>
+                        Address: {{ consignment.sender_address }}<br>
+                        Mobile No: {{ consignment.sender_mobile }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ consignment.receiver_name }}<br>
+                        Address: {{ consignment.receiver_address }}<br>
+                        Mobile: {{ consignment.receiver_mobile }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+
+                <!-- Start of items loop -->
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.pieces }}</td>
+                    <td>{{ item.desc_product }}</td>
+                    {% if forloop.first %}
+                    <td rowspan="2">{{ item.weight }}</td>
+                    <td rowspan="{{ items|length }}">Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                    Balance:</td>
+                    <td rowspan="{{ items|length }}">{{ consignment.freight }}<br>
+                        {{ consignment.door_charge }}<br>
+                        {{ consignment.st_charge }}<br>
+                        {{ consignment.hamali }}<br>
+                        {{ consignment.balance }}<br>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                <!-- End of items loop -->
+
+                <tr>
+                    <td colspan="2">E-way Bill:</td>
+                    <td>{{consignment.pay_status}}</td>
+                    <td>Total</td>
+                    <td>{{consignment.total_cost}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+<hr>
+    {% if 'Consignor Copy' in copy_types %}
+<div class="container">
+        <p class="text-center"><strong>CONSIGNOR COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                <tr>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{branchdetails.image}}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{branchdetails.gst}}<br>
+                                {{branchdetails.companyname}}<br>
+                                {{branchdetails.address}}<br>
+                                {{branchdetails.phonenumber}}<br>
+                                Email: <a href="mailto:{{branchdetails.email}}">{{branchdetails.email}}</a>
+                            </div>
+                        </div>
+                    </td>
+                     </td>
+                    <td><strong>LR No.: {{ consignment.track_id }}</strong></td>
+                    <td><strong>{{ consignment.time }}</strong></td>
+                    <td><strong>{{ consignment.date }}</strong></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><strong>{{consignment.route_from}}</strong></td>
+                    <td colspan="3"><strong>{{consignment.route_to}}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ consignment.sender_name }}<br>
+                        Address: {{ consignment.sender_address }}<br>
+                        Mobile No: {{ consignment.sender_mobile }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ consignment.receiver_name }}<br>
+                        Address: {{ consignment.receiver_address }}<br>
+                        Mobile: {{ consignment.receiver_mobile }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+
+                <!-- Start of items loop -->
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.pieces }}</td>
+                    <td>{{ item.desc_product }}</td>
+                    {% if forloop.first %}
+                    <td rowspan="2">{{ item.weight }}</td>
+                    <td rowspan="{{ items|length }}">Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                    Balance:</td>
+                    <td rowspan="{{ items|length }}">{{ consignment.freight }}<br>
+                        {{ consignment.door_charge }}<br>
+                        {{ consignment.st_charge }}<br>
+                        {{ consignment.hamali }}<br>
+                        {{ consignment.balance }}<br>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                <!-- End of items loop -->
+
+                <tr>
+                    <td colspan="2">E-way Bill:</td>
+                    <td>{{consignment.pay_status}}</td>
+                    <td>Total</td>
+                    <td>{{consignment.total_cost}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+</body>
+</html>

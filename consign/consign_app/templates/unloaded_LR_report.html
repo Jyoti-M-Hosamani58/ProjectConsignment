@@ -1,0 +1,177 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap5" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/tiny-slider.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <title>Consignment</title>
+    <style>
+        /* CSS for horizontal scrolling */
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+            -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+        }
+
+        table {
+            width: 100%; /* Ensure the table takes full width */
+            min-width: 600px; /* Adjust based on the expected minimum width */
+        }
+    </style>
+        <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .filter-form {
+            margin-bottom: 20px;
+        }
+        .filter-form input {
+            margin-right: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="site-mobile-menu site-navbar-target">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close">
+                <span class="icofont-close js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    {% include 'index_menu.html' %}
+
+  <br><br><br>
+
+      <div class="container">
+        <div class="row justify-content-center align-items-center">
+          <div class="col-lg-9 text-center mt-5">
+            <h1 class="heading" data-aos="fade-up"> Unloaded List</h1>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+	<!-- end header -->
+    <form class="filter-form" method="get" action="{% url 'unloaded_LR_report' %}">
+        <div class="row">
+            <div class="col-md-3">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control">
+                </div>
+            <div class="col-md-3">
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <br>
+        <button type="submit" class="form-control btn-primary">Filter</button>
+        </div>
+            </div>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>SI. No.</th>
+                <th>Track ID</th>
+                <th>Time</th>
+                <th>Date</th>
+                <th>Branch</th>
+                <th>Sender Name</th>
+                <th>Receiver Name</th>
+                <th>Route From</th>
+                <th>Route To</th>
+                <th>Product Description</th>
+                <th>Pieces</th>
+                <th>Weight</th>
+                <th>Freight</th>
+                <th>Hamali</th>
+                <th>Door Charge</th>
+                <th>ST Charge</th>
+                <th>Commission</th>
+                <th>Delivery</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consignment in consignments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ consignment.track_id }}</td>
+                <td>{{ consignment.time }}</td>
+                <td>{{ consignment.date }}</td>
+                <td>{{ consignment.branch }}</td>
+                <td>{{ consignment.sender_name }}</td>
+                <td>{{ consignment.receiver_name }}</td>
+                <td>{{ consignment.route_from }}</td>
+                <td>{{ consignment.route_to }}</td>
+                <td>{{ consignment.desc_product }}</td>
+                <td>{{ consignment.pieces }}</td>
+                <td>{{ consignment.weight }}</td>
+                <td>{{ consignment.freight }}</td>
+                <td>{{ consignment.hamali }}</td>
+                <td>{{ consignment.door_charge }}</td>
+                <td>{{ consignment.st_charge }}</td>
+                <td>{{ consignment.commission }}</td>
+                <td>{{ consignment.delivery }}</td>
+                <td>{{ consignment.total_cost }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="18">No consignments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<div class="no-print">
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+
+            </div>
+        </div>
+        <div id="overlayer"></div>
+        <div class="loader">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'js/tiny-slider.js' %}"></script>
+        <script src="{% static 'js/aos.js' %}"></script>
+        <script src="{% static 'js/navbar.js' %}"></script>
+        <script src="{% static 'js/counter.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+    </div>
+</body>
+</html>

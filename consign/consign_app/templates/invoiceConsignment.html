@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Consignment</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Include html2canvas and jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+
+    <style>
+     @media print {
+            .btn-download {
+                display: none; /* Hide button during printing */
+            }
+        }
+        @media print {
+            .btn-print {
+                display: none; /* Hide print button during print */
+            }
+
+
+            /* Default settings (assumed to be A4) */
+            @page {
+                size: A4; /* Default to A4 */
+                margin: 0; /* No margins for printing */
+            }
+
+            body {
+                font-size: 12px; /* Smaller font size for print */
+                margin: 0; /* No margin in body */
+                padding: 0; /* No padding in body */
+                box-sizing: border-box; /* Ensure padding and border are included in width/height calculations */
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: fixed; /* Ensure table fits page width */
+                margin: 0; /* No margin for tables */
+                padding: 0; /* No padding for tables */
+            }
+
+            td, th {
+                border: 1px solid black;
+                padding: 0; /* No padding in table cells */
+                margin: 0; /* No margin in table cells */
+                word-wrap: break-word; /* Wrap text inside cells */
+                overflow: hidden; /* Prevent overflow */
+            }
+
+            /* A5 size specific settings */
+            @media print and (width: 148mm) and (height: 210mm) {
+                @page {
+                    size: A5; /* Set paper size to A5 */
+                    margin: 0; /* No margins for A5 size */
+                }
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 0; /* No padding in container for small screens */
+            }
+            .btn-print {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            table {
+                font-size: 12px; /* Adjust font size for small screens */
+            }
+            img {
+                width: 80px; /* Adjust image size */
+                height: auto;
+                margin: 0; /* No margin for images */
+                display: block; /* Center image */
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        /* General table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* Ensure the table fits the width */
+            margin: 0; /* No margin for tables */
+            padding: 0; /* No padding for tables */
+        }
+        th, td {
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+            text-align: left;
+        }
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between; /* Adjust as needed */
+        }
+        .flex-container img {
+            max-width: 80px; /* Adjust image size */
+            height: auto;
+            margin: 0; /* No margin for images */
+        }
+        .flex-container div {
+            flex: 1;
+            margin: 0; /* No margin for divs */
+        }
+        .description-cell {
+            width: 40%; /* Adjust width of description cell */
+        }
+
+    </style>
+</head>
+<body>
+<script>
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+
+        const invoiceContent = document.getElementById('invoice-content');
+
+        await html2canvas(invoiceContent, {
+            scale: 2
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save('invoice.pdf');
+        }).catch(error => {
+            console.error('Error generating PDF:', error);
+        });
+    }
+</script>
+
+
+    <a href="javascript:window.print()" class="btn btn-danger btn-print">Print</a>
+<button class="btn-download btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+
+    {% if 'Consignee Copy' in copy_types %}
+    <div class="container invoice" id="invoice-content">
+        <p class="text-center"><strong>CONSIGNEE COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+                <h5>DELIVERY AT: {{details.delivery}}</h5>
+                <tr>
+                    <td colspan="2"><strong>DAILY SERVICE</strong><br>
+                        RAICHUR, MANAVI, POTHNAL<br>
+                        SIDHNOOR, SINDHANUR, TAVARAGERA,<br>
+                        SIRWAR, KAVITAL, MUDAGAL, LINGSUR,<br>
+                        MASKI, SAIDAPUR, DEVADURGA, GABBUR,<br>
+                        JALAHALLI, TURVIHAL, YADGIR, GURUGUNTA</td>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{ branchdetails.image }}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{ branchdetails.gst }}<br>
+                                {{ branchdetails.companyname }}<br>
+                                {{ branchdetails.address }}<br>
+                                {{ branchdetails.phonenumber }}<br>
+                                Email: <a href="mailto:{{ branchdetails.email }}">{{ branchdetails.email }}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>DELIVERY AGENCY</strong><br>
+                        HUBLI TOADLINES<br>
+                        MEHABOOBIYA CLNY<br>
+                        OPP RVS RICE MILL<br>
+                        MANCHALAPUR ROAD<br>
+                        RAICHUR 9980475033</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                        Balance:<br>
+                        Commission:
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                        {{ details.balance }}<br>
+                        {{ details.commission }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3">1. Company is not responsible for leakage, Damage & loose Goods<br>
+                        2. Goods Booked at Owner's Risk<br>
+                        3. Any complaints within 7 days.</td>
+                    <td rowspan="3" colspan="2" style="text-align: right;">
+                        <strong>FOR RAICHUR PARCEL SERVICES</strong>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    <hr>
+
+    {% if 'Lorry Copy' in copy_types %}
+    <div class="container">
+        <p class="text-center"><strong>Lorry COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+                <h5>DELIVERY AT: {{details.delivery}}</h5>
+                <tr>
+                    <td colspan="2"><strong>DAILY SERVICE</strong><br>
+                        RAICHUR, MANAVI, POTHNAL<br>
+                        SIDHNOOR, SINDHANUR, TAVARAGERA,<br>
+                        SIRWAR, KAVITAL, MUDAGAL, LINGSUR,<br>
+                        MASKI, SAIDAPUR, DEVADURGA, GABBUR,<br>
+                        JALAHALLI, TURVIHAL, YADGIR, GURUGUNTA</td>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{ branchdetails.image }}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{ branchdetails.gst }}<br>
+                                {{ branchdetails.companyname }}<br>
+                                {{ branchdetails.address }}<br>
+                                {{ branchdetails.phonenumber }}<br>
+                                Email: <a href="mailto:{{ branchdetails.email }}">{{ branchdetails.email }}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>DELIVERY AGENCY</strong><br>
+                        HUBLI TOADLINES<br>
+                        MEHABOOBIYA CLNY<br>
+                        OPP RVS RICE MILL<br>
+                        MANCHALAPUR ROAD<br>
+                        RAICHUR 9980475033</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                        Balance:<br>
+                        Commission:
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                        {{ details.balance }}<br>
+                        {{ details.commission }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3">1. Company is not responsible for leakage, Damage & loose Goods<br>
+                        2. Goods Booked at Owner's Risk<br>
+                        3. Any complaints within 7 days.</td>
+                    <td rowspan="3" colspan="2" style="text-align: right;">
+                        <strong>FOR RAICHUR PARCEL SERVICES</strong>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    <hr>
+
+    {% if 'Consignor Copy' in copy_types %}
+    <div class="container">
+        <p class="text-center"><strong>CONSIGNOR COPY</strong></p>
+        <table class="table table-bordered mt-3">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+                <h5>DELIVERY AT: {{details.delivery}}</h5>
+                <tr>
+                    <td colspan="2"><strong>DAILY SERVICE</strong><br>
+                        RAICHUR, MANAVI, POTHNAL<br>
+                        SIDHNOOR, SINDHANUR, TAVARAGERA,<br>
+                        SIRWAR, KAVITAL, MUDAGAL, LINGSUR,<br>
+                        MASKI, SAIDAPUR, DEVADURGA, GABBUR,<br>
+                        JALAHALLI, TURVIHAL, YADGIR, GURUGUNTA</td>
+                    <td colspan="2">
+                        <div class="flex-container">
+                            <img src="../../media/{{ branchdetails.image }}" alt="Company Logo"/>
+                            <div>
+                                GST NO.: {{ branchdetails.gst }}<br>
+                                {{ branchdetails.companyname }}<br>
+                                {{ branchdetails.address }}<br>
+                                {{ branchdetails.phonenumber }}<br>
+                                Email: <a href="mailto:{{ branchdetails.email }}">{{ branchdetails.email }}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td><strong>DELIVERY AGENCY</strong><br>
+                        HUBLI TOADLINES<br>
+                        MEHABOOBIYA CLNY<br>
+                        OPP RVS RICE MILL<br>
+                        MANCHALAPUR ROAD<br>
+                        RAICHUR 9980475033</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                        Balance:<br>
+                        Commission:
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                        {{ details.balance }}<br>
+                        {{ details.commission }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3">1. Company is not responsible for leakage, Damage & loose Goods<br>
+                        2. Goods Booked at Owner's Risk<br>
+                        3. Any complaints within 7 days.</td>
+                    <td rowspan="3" colspan="2" style="text-align: right;">
+                        <strong>FOR RAICHUR PARCEL SERVICES</strong>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</body>
+</html>

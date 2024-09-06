@@ -1,0 +1,517 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap5" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/tiny-slider.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <title>
+Consignment    </title>
+      <style>
+          .suggestions-box {
+    border: 1px solid #ddd;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+}
+
+.suggestions-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestions-box li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestions-box li:hover {
+    background-color: #f0f0f0;
+}
+
+      </style>
+  </head>
+  <body>
+    <div class="site-mobile-menu site-navbar-target">
+      <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close">
+          <span class="icofont-close js-menu-toggle"></span>
+        </div>
+      </div>
+      <div class="site-mobile-menu-body"></div>
+    </div>
+
+    {% include 'branch_nav.html' %}
+<br><br><br>
+     <div class="container">
+        <div class="row justify-content-center align-items-center">
+          <div class="col-lg-9 text-center mt-5">
+            <h1 class="heading" data-aos="fade-up">Add Consignment</h1>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div class="background-container"></div>
+    <div class="content">
+    <div id="consignmentForm" class="container">
+        <form method="post">
+            {% csrf_token %}
+    <p style="color:red;text-align:center;font-size:22px;font-weight:bold">{{msg}}</p>
+            <div class="row">
+			<div class="col-md-6">
+
+                    <label for="from">From</label>
+                    <input type="text" id="from" name="from" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="to">To</label>
+                <input type="text" id="to" name="to" class="form-control" required><br>
+            </div>
+        </div>
+            <div class="row g-3">
+
+<div class="col-md-6">
+    <h3>Consigner Details</h3><br>
+    <label for="senderName">Consigner</label>
+    <input type="text" id="senderName" name="a1" class="form-control" required list="consignor_name" oninput="showConsignorDatalist()" onchange="fetchSenderDetails()">
+    <datalist id="consignor_name"></datalist> <!-- Container for the suggestions -->
+
+    <label for="senderMobile">Consigner Mobile:</label>
+    <input type="tel" id="senderMobile" name="a2" class="form-control" required>
+
+    <label for="sendergst">Consigner GST:</label>
+    <input type="text" id="sendergst" name="sendergst" class="form-control">
+
+
+    <label for="senderAddress">Consigner Address:</label>
+    <input type="text" id="senderAddress" name="a4" class="form-control">
+
+</div>
+
+
+                <div class="col-md-6">
+                    <h3>Consignee Details:</h3><br>
+                    <label for="receiverName">Consignee:</label>
+                    <input type="text" id="receiverName" name="a5" class="form-control" required list="consignee_name" oninput="showConsigneeDatalist()" onchange="fetchRecDetails()"  >
+                    <datalist id="consignee_name"></datalist>
+
+                    <label for="receiverMobile">Consignee Mobile:</label>
+                    <input type="tel" id="receiverMobile" name="a6" class="form-control" pattern="{0-9}"required>
+
+                    <label for="receivergst">Consignee GST:</label>
+                    <input type="text" id="receivergst" name="receivergst" class="form-control">
+
+                    <label for="receiverAddress">Consignee Address:</label>
+                    <input type="text" id="receiverAddress" name="a8" class="form-control">
+
+               </div>
+				<br>
+				<div class="col-md-6">
+<h3>Products Details:</h3><br>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SL. No</th>
+                <th>Product Name</th>
+                <th>No of Pieces</th>
+
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+            <!-- Rows will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+                    <div class="col-md-6">
+
+                <label>Invoice No</label>
+                <input type="text" class="form-control" id="prod_invoice" name="prod_invoice">
+
+                <label>Amount</label>
+                <input type="text" class="form-control" id="prod_price" name="prod_price">
+
+                        <div id="billNoContainer" style="display: none;">
+        <label>E-Way Bill No</label>
+        <input type="text" class="form-control" id="bill_no" name="ewaybill_no">
+    </div>
+                <label>Weight</label>
+                <input type="text" class="form-control" id="weight" name="weight"></br>
+                        <label>Payment Mode</label>
+			<select name="payment" id="payment">
+				<option value=" ">-- Select --</option>
+    			<option value="Paid">Paid</option>
+                <option value="Shipper A/C">Shipper Account</option>
+                <option value="Receiver A/C">Receiver Account</option>
+                <option value="To Pay">To Pay</option>
+
+            </select></br></br>
+			</div>
+                    </br>
+</div>
+
+				<div class="col-md-6">
+                    <h3>Charge Details:</h3><br>
+
+					 <label>Charged Weight</label>
+    				<input type="text" name="weightAmt" id="weightAmt" class="form-control">
+
+
+                    <label for="freight">Freight</label>
+                    <input type="text" id="freight" name="freight" value="0"  class="form-control" required>
+
+
+                    <label for="hamali">Hamali Charge</label>
+                    <input type="text" id="hamali" name="hamali" value="0" class="form-control" >
+
+                    <label for="door_charge">Door Charge</label>
+                    <input id="door_charge" name="door_charge"  value="0" class="form-control" />
+
+					<label for="st_charge">ST Charge</label>
+                    <input id="st_charge" name="st_charge" value="10" class="form-control" />
+
+                    <label for="st_charge">Balance</label>
+                    <input id="bal" name="bal" value="0" class="form-control" />
+
+					<label for="total">Total</label>
+					<input id="total" name="cost" class="form-control" required/><br>
+
+                    <label for="commission">Commission</label>
+					<input id="commission" name="commission" value="0" class="form-control" required/><br>
+
+                    <label for="g_total">Grand Total</label>
+					<input id="g_total" name="g_total" class="form-control" required/><br>
+
+                </div>
+
+            </div>
+            <div class="row">
+
+
+                </div>
+           <!-- Checkboxes for copies -->
+    <div class="form-group">
+       <label>Select Copies:</label><br>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="consignor_copy" name="consignor_copy" value="consignor" class="form-check-input">
+        <label for="consignor_copy" class="form-check-label">Consignor Copy</label>
+    </div>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="consignee_copy" name="consignee_copy" value="consignee" checked class="form-check-input">
+        <label for="consignee_copy" class="form-check-label">Consignee Copy</label>
+    </div>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="lorry_copy" name="lorry_copy" value="lorry" checked class="form-check-input">
+        <label for="lorry_copy" class="form-check-label">Lorry Copy</label>
+    </div>
+    </div>
+
+      <div class="form-group">
+       <label>Delivery:</label><br>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="godown" name="godown" value="godown" class="form-check-input">
+        <label for="consignor_copy" class="form-check-label">Godwon</label>
+    </div>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="partydoor" name="partydoor" value="partydoor" checked class="form-check-input">
+        <label for="consignee_copy" class="form-check-label">Party Door</label>
+    </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+        </form>
+
+	</div>
+
+
+
+    </div>
+	<!-- Add the following script just above the closing </body> tag -->
+<script>
+
+function validateForm() {
+    const billNo = document.getElementById('bill_no');
+    if (billNo && billNo.style.display !== 'none' && !billNo.value) {
+        billNo.setCustomValidity('E-Way Bill No is required.');
+    } else {
+        billNo.setCustomValidity('');
+    }
+}
+
+document.querySelector('form').addEventListener('submit', validateForm);
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const prodPriceField = document.getElementById('prod_price');
+    const billNoContainer = document.getElementById('billNoContainer');
+
+    function checkPrice() {
+    const price = parseFloat(prodPriceField.value) || 0;
+    if (price > 49999) {
+        billNoContainer.style.display = 'block';
+    } else {
+        billNoContainer.style.display = 'none';
+        document.getElementById('bill_no').value = ''; // Clear value when hidden
+    }
+}
+
+    // Attach event listener
+    prodPriceField.addEventListener('input', checkPrice);
+
+    // Initial check on page load
+    checkPrice();
+});
+
+
+const numberOfRows = 5;
+const tbody = document.getElementById('productTableBody');
+
+for (let i = 1; i <= numberOfRows; i++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${i}</td> <!-- Serial Number -->
+        <td><input type="text" name="product[]" class="form-control"></td>
+        <td><input type="text" name="pieces[]" class="form-control"></td>
+    `;
+    tbody.appendChild(row);
+}
+
+function showDatalist() {
+    const input = document.getElementById('vehicalno');
+    const datalist = document.getElementById('vehicle_numbers');
+
+    if (input.value.length >= 2) {
+        fetch(`/get_vehicle_numbers?query=${encodeURIComponent(input.value)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched data:', data); // Debugging: Check the data in the console
+                datalist.innerHTML = ''; // Clear previous options
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(number => {
+                        const option = document.createElement('option');
+                        option.value = number;
+                        datalist.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = 'No results';
+                    datalist.appendChild(option);
+                }
+            })
+            .catch(error => console.error('Error fetching vehicle numbers:', error));
+    } else {
+        datalist.innerHTML = ''; // Clear the datalist if fewer than 2 characters
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const weightAmtField = document.querySelector('[name="weightAmt"]');
+    const freightField = document.querySelector('[name="freight"]');
+    const hamaliField = document.querySelector('[name="hamali"]');
+    const doorChargeField = document.querySelector('[name="door_charge"]');
+    const stChargeField = document.querySelector('[name="st_charge"]');
+    const totalField = document.getElementById('total');
+    const g_totalField = document.getElementById('g_total');
+
+    function calculateTotal() {
+        const weightAmt = parseFloat(weightAmtField.value) || 0;
+        const freight = parseFloat(freightField.value) || 0;
+        const hamali = parseFloat(hamaliField.value) || 0;
+        const doorCharge = parseFloat(doorChargeField.value) || 0;
+        const stCharge = parseFloat(stChargeField.value) || 0;
+
+
+        const total =  freight + hamali + doorCharge + stCharge + weightAmt;
+        totalField.value = total.toFixed(2);  // Format to 2 decimal places
+        g_totalField.value = total.toFixed(2);  // Format to 2 decimal places
+    }
+    weightAmt.addEventListener('input', calculateTotal);
+    freightField.addEventListener('input', calculateTotal);
+    hamaliField.addEventListener('input', calculateTotal);
+    doorChargeField.addEventListener('input', calculateTotal);
+    stChargeField.addEventListener('input', calculateTotal);
+});
+
+function showConsignorDatalist() {
+    const input = document.getElementById('senderName');
+    const datalist = document.getElementById('consignor_name');
+
+    if (input.value.length >= 2) {
+        fetch(`/get_consignor_name?query=${encodeURIComponent(input.value)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched data:', data); // Debugging: Check the data in the console
+                datalist.innerHTML = ''; // Clear previous options
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(number => {
+                        const option = document.createElement('option');
+                        option.value = number;
+                        datalist.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = 'No results';
+                    datalist.appendChild(option);
+                }
+            })
+            .catch(error => console.error('Error fetching vehicle numbers:', error));
+    } else {
+        datalist.innerHTML = ''; // Clear the datalist if fewer than 2 characters
+    }
+}
+
+// New function to fetch sender details when a name is selected
+function fetchSenderDetails() {
+    const senderName = document.getElementById('senderName').value;
+
+    if (senderName) {
+        fetch(`/get_sender_details?name=${encodeURIComponent(senderName)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched sender details:', data); // Debugging: Check the data in the console
+
+                // Populate the form fields with the fetched data
+                document.getElementById('senderMobile').value = data.sender_mobile || '';
+                document.getElementById('sendergst').value = data.sender_GST || '';
+                document.getElementById('senderAddress').value = data.sender_address || '';            })
+            .catch(error => console.error('Error fetching sender details:', error));
+    }
+}
+function showConsigneeDatalist() {
+    const input = document.getElementById('receiverName');
+    const datalist = document.getElementById('consignee_name');
+
+    if (input.value.length >= 2) {
+        fetch(`/get_consignee_name?query=${encodeURIComponent(input.value)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched data:', data); // Debugging: Check the data in the console
+                datalist.innerHTML = ''; // Clear previous options
+
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(number => {
+                        const option = document.createElement('option');
+                        option.value = number;
+                        datalist.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = 'No results';
+                    datalist.appendChild(option);
+                }
+            })
+            .catch(error => console.error('Error fetching vehicle numbers:', error));
+    } else {
+        datalist.innerHTML = ''; // Clear the datalist if fewer than 2 characters
+    }
+}
+// New function to fetch sender details when a name is selected
+function fetchRecDetails() {
+    const receiverName = document.getElementById('receiverName').value;
+
+    if (senderName) {
+        fetch(`/get_rec_details?name=${encodeURIComponent(receiverName)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Fetched sender details:', data); // Debugging: Check the data in the console
+
+                // Populate the form fields with the fetched data
+                document.getElementById('receiverMobile').value = data.receiver_mobile || '';
+                document.getElementById('receivergst').value = data.receiver_GST || '';
+                document.getElementById('receiverAddress').value = data.receiver_address || '';
+            })
+            .catch(error => console.error('Error fetching sender details:', error));
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const commissionInput = document.getElementById('commission');
+    const grandTotalInput = document.getElementById('g_total');
+    const totalField = document.getElementById('total');
+
+    function calculateGrandTotal() {
+        // Get the total value (assuming it should be fetched from the 'total' input)
+        const total = parseFloat(totalField.value) || 0;
+        const commission = parseFloat(commissionInput.value) || 0;
+
+        // Calculate the grand total
+        const grandTotal = total - commission;
+
+        // Ensure grand total doesn't go negative
+        grandTotalInput.value = Math.max(grandTotal, 0).toFixed(2);
+    }
+
+    // Attach event listeners
+    commissionInput.addEventListener('input', calculateGrandTotal);
+    totalField.addEventListener('input', calculateGrandTotal);
+
+    // Initialize grand total on page load
+    calculateGrandTotal();
+});
+
+</script>
+
+ <div class="row mt-5">
+          <div class="col-12 text-center">
+            <!--
+              **==========
+              NOTE:
+              Please don't remove this copyright link unless you buy the license here https://untree.co/license/
+              **==========
+            -->
+          </div>
+        </div>
+      </div>
+      <!-- /.container -->
+    </div>
+    <!-- /.site-footer -->
+
+    <!-- Preloader -->
+    <div id="overlayer"></div>
+    <div class="loader">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/tiny-slider.js' %}"></script>
+    <script src="{% static 'js/aos.js' %}"></script>
+    <script src="{% static 'js/navbar.js' %}"></script>
+    <script src="{% static 'js/counter.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+  </body>
+</html>

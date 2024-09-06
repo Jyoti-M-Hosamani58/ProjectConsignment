@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap5" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/tiny-slider.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <title>Consignment</title>
+    <style>
+        /* CSS for horizontal scrolling */
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+            -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+        }
+
+        table {
+            width: 100%; /* Ensure the table takes full width */
+            min-width: 600px; /* Adjust based on the expected minimum width */
+        }
+    </style>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        .form-control {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #consignorSearch {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="site-mobile-menu site-navbar-target">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close">
+                <span class="icofont-close js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    {% include 'index_menu.html' %}
+
+  <br><br><br>
+
+      <div class="container">
+        <div class="row justify-content-center align-items-center">
+          <div class="col-lg-9 text-center mt-5">
+            <h1 class="heading" data-aos="fade-up"> Account List</h1>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+	<!-- end header -->
+
+
+    <div class="container">
+
+        <form method="get" action="{% url 'account_report' %}" id="report-form">
+            <div class="row">
+
+            <div class="col-md-3">
+                <label for="branch">Branch:</label>
+                <input type="text" class="form-control" id="branch" name="branch" list="branch-datalist" oninput="updateAccountDetails()">
+                <datalist id="branch-datalist"></datalist>
+            </div>
+
+            <div class="col-md-3">
+                <label for="from_date">From Date:</label>
+                <input type="date" class="form-control" id="from_date" name="from_date" value="{{ from_date }}">
+            </div>
+
+            <div class="col-md-3">
+                <label for="to_date">To Date:</label>
+                <input type="date" class="form-control" id="to_date" name="to_date" value="{{ to_date }}">
+            </div>
+
+            <!-- Sender Name field removed -->
+
+            <div class="col-md-3">
+                <label for="consignorSearch">Search by Sender Name:</label>
+                <input type="text" id="consignorSearch" onkeyup="filterConsignments()">
+            </div>
+                </div>
+        </form>
+
+        <div id="account-details">
+            <!-- Table for account details will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+    function updateAccountDetails() {
+        const branchInput = document.getElementById('branch').value;
+        const fromDateInput = document.getElementById('from_date').value;
+        const toDateInput = document.getElementById('to_date').value;
+
+        // Construct the query parameters
+        const queryParams = new URLSearchParams();
+        if (branchInput) queryParams.append('branch', branchInput);
+        if (fromDateInput) queryParams.append('from_date', fromDateInput);
+        if (toDateInput) queryParams.append('to_date', toDateInput);
+
+        // Only perform fetch if there's at least one filter criterion
+        if (branchInput.length >= 2 || fromDateInput || toDateInput) {
+            fetch(`/get_account_details?${queryParams.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetched data:', data); // Debugging: Check the data in the console
+                    const accountDetailsDiv = document.getElementById('account-details');
+
+                    // Generate table if there is data
+                    if (data.length > 0) {
+                        let tableHTML = `
+                            <table id="consignmentTable">
+                                <thead>
+                                    <tr>
+                                        <th>SI. No</th>
+                                        <th>Track Number</th>
+                                        <th>Sender Name</th>
+                                        <th>Branch</th>
+                                        <th>Head Name</th>
+                                        <th>Transaction Type</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        data.forEach((account, index) => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${account.track_number}</td>
+                                    <td>${account.sender_name}</td>
+                                    <td>${account.Branch}</td>
+                                    <td>${account.headname}</td>
+                                    <td>${account.TrType}</td>
+                                    <td>${account.debit}</td>
+                                    <td>${account.credit}</td>
+                                    <td>${account.Balance}</td>
+                                </tr>
+                            `;
+                        });
+
+                        tableHTML += `
+                                </tbody>
+                            </table>
+                        `;
+
+                        accountDetailsDiv.innerHTML = tableHTML;
+                    } else {
+                        accountDetailsDiv.innerHTML = '<p>No accounts found matching the criteria.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching account details:', error);
+                    document.getElementById('account-details').innerHTML = '<p>Error fetching account details.</p>';
+                });
+        } else {
+            document.getElementById('account-details').innerHTML = ''; // Clear the table if less than 2 characters
+        }
+    }
+
+    function filterConsignments() {
+        var input, filter, table, rows, td, i, shouldShow;
+        input = document.getElementById("consignorSearch");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("consignmentTable");
+        rows = table.getElementsByTagName("tr");
+
+        for (i = 1; i < rows.length; i++) {
+            td = rows[i].getElementsByTagName("td")[2]; // Sender Name is in the 3rd column (index 2)
+            if (td) {
+                shouldShow = td.textContent || td.innerText;
+                if (shouldShow.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+    </script>
+<div class="no-print">
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+
+            </div>
+        </div>
+        <div id="overlayer"></div>
+        <div class="loader">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'js/tiny-slider.js' %}"></script>
+        <script src="{% static 'js/aos.js' %}"></script>
+        <script src="{% static 'js/navbar.js' %}"></script>
+        <script src="{% static 'js/counter.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+    </div>
+</body>
+</html>
+
+
